@@ -1,0 +1,495 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chatbot</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #0b1020;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 850px;
+      height: 90vh;
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid #29334b;
+      border-radius: 18px;
+      background: #111827;
+      box-shadow: 0 20px 60px #0005;
+    }
+
+    header {
+      padding: 20px;
+      border-bottom: 1px solid #29334b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 21px;
+    }
+
+    header p {
+      color: #9ca3af;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .status {
+      color: #86efac;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    select, button, input, textarea {
+      font: inherit;
+    }
+
+    select {
+      max-width: 180px;
+      padding: 9px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #1f2937;
+      color: white;
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .welcome {
+      text-align: center;
+      margin: auto;
+      max-width: 420px;
+      color: #d1d5db;
+      line-height: 1.7;
+    }
+
+    .welcome .emoji {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .welcome h2 {
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .message {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #26334d;
+    }
+
+    .user .avatar {
+      background: #4f46e5;
+    }
+
+    .bubble {
+      max-width: 80%;
+      padding: 13px 15px;
+      border-radius: 12px;
+      background: #1f2937;
+      line-height: 1.65;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .user .bubble {
+      background: #4338ca;
+    }
+
+    .composer {
+      padding: 15px;
+      border-top: 1px solid #29334b;
+    }
+
+    .key-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .key-row input {
+      width: 100%;
+      min-width: 0;
+      background: #0b1020;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 10px;
+      color: white;
+      outline: none;
+    }
+
+    .key-row input:focus,
+    textarea:focus {
+      border-color: #818cf8;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    textarea {
+      flex: 1;
+      resize: none;
+      min-width: 0;
+      max-height: 130px;
+      padding: 13px;
+      border: 1px solid #374151;
+      border-radius: 12px;
+      background: #0b1020;
+      color: white;
+      outline: none;
+      line-height: 1.5;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      border-radius: 9px;
+      padding: 12px 16px;
+      background: #6366f1;
+      color: white;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #4f46e5;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      color: #9ca3af;
+      font-size: 12px;
+    }
+
+    .secondary {
+      padding: 8px 11px;
+      background: #273449;
+      font-size: 12px;
+    }
+
+    .typing {
+      color: #a5b4fc;
+      font-size: 13px;
+      padding-left: 44px;
+    }
+
+    .note {
+      color: #fbbf24;
+      font-size: 11px;
+      margin-bottom: 9px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 550px) {
+      body {
+        padding: 0;
+      }
+
+      .app {
+        height: 100dvh;
+        min-height: 0;
+        border-radius: 0;
+      }
+
+      header {
+        padding: 15px;
+      }
+
+      header h1 {
+        font-size: 18px;
+      }
+
+      select {
+        max-width: 145px;
+        font-size: 11px;
+      }
+
+      #chat {
+        padding: 15px;
+      }
+
+      .bubble {
+        max-width: 88%;
+      }
+
+      .composer {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <h1>✨ Nova AI</h1>
+        <p>Your personal AI assistant</p>
+        <div class="status" id="status">● Ready to chat</div>
+      </div>
+
+      <select id="model" aria-label="Select AI model">
+        <option value="llama-3.3-70b-versatile">
+          Llama 3.3 70B
+        </option>
+        <option value="openai/gpt-oss-20b">
+          GPT OSS 20B
+        </option>
+      </select>
+    </header>
+
+    <section id="chat" aria-live="polite">
+      <div class="welcome" id="welcome">
+        <div class="emoji">🤖</div>
+        <h2>Welcome to Nova AI</h2>
+        <p>Ask questions, learn programming, brainstorm ideas,
+          or get help with your projects.</p>
+      </div>
+    </section>
+
+    <section class="composer">
+      <p class="note">
+        Demo only: a browser-entered API key is not secret.
+        Never publish a real API key in this page.
+      </p>
+
+      <div class="key-row">
+        <input
+          id="apiKey"
+          type="password"
+          placeholder="Paste a temporary Groq API key"
+          autocomplete="off"
+          aria-label="Temporary Groq API key"
+        >
+      </div>
+
+      <div class="input-row">
+        <textarea
+          id="prompt"
+          rows="1"
+          placeholder="Message Nova AI..."
+          aria-label="Your message"
+        ></textarea>
+        <button id="sendBtn" onclick="sendMessage()">Send ➤</button>
+      </div>
+
+      <div class="tools">
+        <span>Powered by Groq</span>
+        <button class="secondary" onclick="clearChat()">Clear chat</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const promptInput = document.getElementById("prompt");
+    const apiKeyInput = document.getElementById("apiKey");
+    const sendBtn = document.getElementById("sendBtn");
+    const statusText = document.getElementById("status");
+
+    let messages = [];
+
+    function addMessage(text, role) {
+      const row = document.createElement("div");
+      row.className = "message " + (role === "user" ? "user" : "bot");
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = role === "user" ? "👤" : "🤖";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+
+      // Use textContent to safely display user and AI text.
+      bubble.textContent = text;
+
+      row.append(avatar, bubble);
+      chat.appendChild(row);
+      chat.scrollTop = chat.scrollHeight;
+      return row;
+    }
+
+    async function sendMessage() {
+      const text = promptInput.value.trim();
+      const apiKey = apiKeyInput.value.trim();
+
+      if (!text || sendBtn.disabled) return;
+
+      if (!apiKey) {
+        statusText.textContent = "Enter a temporary API key to test.";
+        apiKeyInput.focus();
+        return;
+      }
+
+      document.getElementById("welcome")?.remove();
+
+      promptInput.value = "";
+      promptInput.style.height = "auto";
+
+      addMessage(text, "user");
+      messages.push({ role: "user", content: text });
+
+      const typing = document.createElement("div");
+      typing.className = "typing";
+      typing.textContent = "Nova is thinking...";
+      chat.appendChild(typing);
+
+      sendBtn.disabled = true;
+      statusText.textContent = "● Generating response...";
+
+      try {
+        const response = await fetch(
+          "https://api.groq.com/openai/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + apiKey
+            },
+            body: JSON.stringify({
+              model: document.getElementById("model").value,
+              messages: [
+                {
+                  role: "system",
+                  content: "You are Nova, a helpful and friendly AI assistant. Give clear, accurate answers. Use simple language when appropriate."
+                },
+                ...messages.slice(-20)
+              ],
+              temperature: 0.7,
+              max_tokens: 1000
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error?.message || "API request failed: " + response.status
+          );
+        }
+
+        const answer =
+          data.choices?.[0]?.message?.content ||
+          "I couldn't generate a response. Please try again.";
+
+        messages.push({ role: "assistant", content: answer });
+        addMessage(answer, "assistant");
+        statusText.textContent = "● Ready to chat";
+
+      } catch (error) {
+        // Remove the failed user turn from conversation history so
+        // a retry does not leave an unmatched message.
+        messages.pop();
+
+        addMessage(
+          "Sorry, something went wrong.\n" + error.message +
+          "\n\nCheck your API key, model availability, quota, and network.",
+          "assistant"
+        );
+
+        statusText.textContent = "● Request failed";
+      } finally {
+        typing.remove();
+        sendBtn.disabled = false;
+        promptInput.focus();
+      }
+    }
+
+    function clearChat() {
+      messages = [];
+      chat.replaceChildren();
+
+      const welcome = document.createElement("div");
+      welcome.className = "welcome";
+      welcome.id = "welcome";
+
+      const emoji = document.createElement("div");
+      emoji.className = "emoji";
+      emoji.textContent = "🤖";
+
+      const heading = document.createElement("h2");
+      heading.textContent = "Chat cleared!";
+
+      const description = document.createElement("p");
+      description.textContent = "What would you like to ask me?";
+
+      welcome.append(emoji, heading, description);
+      chat.appendChild(welcome);
+      statusText.textContent = "● Ready to chat";
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+
+    promptInput.addEventListener("keydown", function(event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    promptInput.addEventListener("input", function() {
+      this.style.height = "auto";
+      this.style.height = Math.min(this.scrollHeight, 130) + "px";
+    });
+  </script>
+</body>
+</html>
+```
