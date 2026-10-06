@@ -43,7 +43,6 @@
       overflow: hidden;
     }
 
-    /* Container */
     .whatsapp-app {
       width: 100%;
       max-width: 950px;
@@ -57,7 +56,6 @@
       border: 1px solid #222d34;
     }
 
-    /* WhatsApp Header */
     header {
       background: var(--wa-header);
       padding: 10px 16px;
@@ -127,7 +125,6 @@
       color: var(--wa-text);
     }
 
-    /* Chat Area with WhatsApp Pattern */
     #chat-box {
       flex: 1;
       overflow-y: auto;
@@ -149,7 +146,6 @@
       border-radius: 3px;
     }
 
-    /* Date Capsule */
     .date-pill {
       align-self: center;
       background: #182229;
@@ -161,7 +157,6 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
 
-    /* WhatsApp Message Rows */
     .msg-row {
       display: flex;
       width: 100%;
@@ -198,7 +193,6 @@
       border-top-left-radius: 0;
     }
 
-    /* Message Meta: Time & Ticks */
     .msg-meta {
       float: right;
       display: flex;
@@ -216,7 +210,6 @@
       font-size: 13px;
     }
 
-    /* Markdown & Code styling inside bubble */
     .msg-bubble p {
       margin-bottom: 6px;
     }
@@ -275,13 +268,13 @@
       padding: 0 !important;
     }
 
-    /* Typing indicator */
     .typing-box {
       display: flex;
       align-items: center;
       gap: 4px;
       padding: 10px 14px;
     }
+
     .typing-dot {
       width: 6px;
       height: 6px;
@@ -302,7 +295,6 @@
       to { transform: scale(1); opacity: 1; }
     }
 
-    /* WhatsApp Footer Bar */
     footer {
       background: var(--wa-footer);
       padding: 8px 14px;
@@ -384,7 +376,6 @@
 
 <body>
   <div class="whatsapp-app">
-    <!-- Header -->
     <header>
       <div class="chat-profile">
         <div class="profile-avatar">
@@ -403,14 +394,12 @@
       </div>
     </header>
 
-    <!-- Chat Messages -->
     <div id="chat-box">
       <div class="date-pill">TODAY</div>
       
-      <!-- Welcome message -->
       <div class="msg-row ai">
         <div class="msg-bubble">
-          Hello! 👋 Main aapka personal AI assistant hoon. Aap mujhse koi bhi sawal pooch sakte hain ya coding ke liye keh sakte hain!
+          Hello! 👋 Main aapka AI assistant hoon. Aap mujhse koi bhi sawal pooch sakte hain!
           <div class="msg-meta">
             <span class="msg-time" id="welcome-time">12:00 PM</span>
           </div>
@@ -418,7 +407,6 @@
       </div>
     </div>
 
-    <!-- WhatsApp Input Bar -->
     <footer>
       <button class="footer-btn" title="Emoji"><i class="fa-regular fa-face-smile"></i></button>
       <button class="footer-btn" title="Attach"><i class="fa-solid fa-paperclip"></i></button>
@@ -434,11 +422,8 @@
   </div>
 
   <script>
-    /******************************************************************
-     * 🔑 YAHAN APNI GROQ API KEY PASTE KAREIN:
-     * Niche quotation ("...") ke andar apni key daal dein.
-     ******************************************************************/
-    const GROQ_API_KEY = "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";
+    // Reads key securely from browser storage without putting it in GitHub
+    const GROQ_API_KEY = localStorage.getItem("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");
 
     const chatBox = document.getElementById("chat-box");
     const chatInput = document.getElementById("chat-input");
@@ -448,7 +433,6 @@
 
     let messages = [];
 
-    // Current time helper (e.g. "11:05 AM")
     function getTime() {
       const now = new Date();
       return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -456,7 +440,6 @@
 
     document.getElementById("welcome-time").textContent = getTime();
 
-    // Markdown Parser setup with Copy Code Box
     const renderer = new marked.Renderer();
     renderer.code = function(code, language) {
       const validLang = (language && hljs.getLanguage(language)) ? language : 'plaintext';
@@ -493,7 +476,6 @@
 
       let contentHTML = role === "user" ? document.createTextNode(text).textContent : marked.parse(text);
       const timeStr = getTime();
-
       const ticks = role === "user" ? `<i class="fa-solid fa-check-double blue-tick"></i>` : "";
 
       bubble.innerHTML = `
@@ -536,8 +518,9 @@
       const text = chatInput.value.trim();
       if (!text || sendBtn.disabled) return;
 
-      if (!GROQ_API_KEY || GROQ_API_KEY === "PASTE_YOUR_GROQ_KEY_HERE") {
-        alert("⚠️ Please open this file in VS Code or Notepad and paste your Groq API Key at line 348!");
+      const activeKey = localStorage.getItem("groq_key");
+      if (!activeKey) {
+        alert("⚠️ API Key not found! Please open your browser console (F12) and type: localStorage.setItem('groq_key', 'your_new_key_here');");
         return;
       }
 
@@ -545,7 +528,6 @@
       chatInput.style.height = "auto";
       sendBtn.disabled = true;
 
-      // Add user message
       appendMessage(text, "user");
       messages.push({ role: "user", content: text });
 
@@ -557,14 +539,14 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${GROQ_API_KEY}`
+            "Authorization": `Bearer ${activeKey}`
           },
           body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
+            model: "llama-3.3-70b-versatile",
             messages: [
               {
                 role: "system",
-                content: "You are a helpful AI assistant in a chat application. Reply clearly with concise answers and well-formatted code blocks."
+                content: "You are a helpful assistant. Provide clear explanations and clean code blocks."
               },
               ...messages.slice(-8)
             ],
@@ -609,7 +591,7 @@
     });
 
     clearChatBtn.addEventListener("click", () => {
-      if (confirm("Clear conversation history?")) {
+      if (confirm("Clear chat?")) {
         messages = [];
         chatBox.innerHTML = `
           <div class="date-pill">TODAY</div>
