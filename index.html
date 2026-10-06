@@ -422,8 +422,11 @@
   </div>
 
   <script>
-    // Reads key securely from browser storage without putting it in GitHub
-    const GROQ_API_KEY = localStorage.getItem("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");
+    // 1. Apni NEW Groq API key yahan quotes ke andar paste karein
+    const HARDCODED_KEY = "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";
+
+    // Agar localStorage mein save hai to wahan se lega, nahi to upar wali key lega
+    const GROQ_API_KEY = localStorage.getItem("groq_key") || HARDCODED_KEY;
 
     const chatBox = document.getElementById("chat-box");
     const chatInput = document.getElementById("chat-input");
@@ -518,9 +521,9 @@
       const text = chatInput.value.trim();
       if (!text || sendBtn.disabled) return;
 
-      const activeKey = localStorage.getItem("groq_key");
-      if (!activeKey) {
-        alert("⚠️ API Key not found! Please open your browser console (F12) and type: localStorage.setItem('groq_key', 'your_new_key_here');");
+      const activeKey = GROQ_API_KEY;
+      if (!activeKey || activeKey === "PASTE_YOUR_NEW_KEY_HERE") {
+        alert("⚠️ Kripya valid Groq API Key enter karein!");
         return;
       }
 
@@ -542,7 +545,8 @@
             "Authorization": `Bearer ${activeKey}`
           },
           body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
+            // Yeh model bilkul active aur free hai
+            model: "llama-3.1-8b-instant",
             messages: [
               {
                 role: "system",
